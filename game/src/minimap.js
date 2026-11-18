@@ -1,4 +1,4 @@
-// Solaris City — minimap.js (rewritten polish pass)
+// Solaris City — minimap.js (final authoring pass)
 // Bottom-left radar: roads, mission pin, stash dots, police blips, traffic,
 // rotating player arrow and the current district name.
 
@@ -16,6 +16,8 @@ function clampBlip(v) {
 export class Minimap {
   constructor(game) {
     this.game = game;
+    // Offscreen canvas prevents per-frame full minimap redraws; only the
+    // per-frame blips are composited directly onto the main canvas.
     this.offscreen = document.createElement('canvas');
     this.offscreen.width = SIZE;
     this.offscreen.height = SIZE;

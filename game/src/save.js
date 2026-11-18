@@ -1,4 +1,4 @@
-// Solaris City — save.js (rewritten polish pass)
+// Solaris City — save.js (final authoring pass)
 // localStorage autosave every 5 s during play, plus a beforeunload flush
 // so tabs closed accidentally still keep progress.
 
@@ -22,6 +22,7 @@ export class Save {
       this.data = raw ? JSON.parse(raw) : null;
       this.loaded = !!this.data;
     } catch (e) {
+      // Corrupt JSON or blocked storage — treat as a fresh save.
       this.data = null;
     }
     return this.loaded;

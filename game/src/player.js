@@ -1,4 +1,4 @@
-// Solaris City — player.js (rewritten polish pass)
+// Solaris City — player.js (final authoring pass)
 // Diego Varga on foot and in stolen vehicles: movement, collision sliding,
 // car jacking, bail-out damage, health/armor, death and respawn.
 
@@ -74,6 +74,7 @@ export class Player {
   updateOnFoot(dt, inp) {
     const { ax, ay } = inp.axis();
     const spd = inp.sprint() ? SPRINT_SPEED : WALK_SPEED;
+    // Normalize the diagonal so sprinting cornerwise isn't faster than straight.
     const l = Math.hypot(ax, ay) || 1;
     this.vx = (ax / l) * spd;
     this.vy = (ay / l) * spd;
@@ -135,6 +136,7 @@ export class Player {
       const spd = Math.hypot(v.vx, v.vy);
       if (spd > BAIL_HURT_SPEED) this.damage(Math.min(BAIL_HURT_MAX, (spd - BAIL_HURT_SPEED) * BAIL_HURT_SCALE));
       v.driver = null;
+      // Leave the car rolling so it doesn't stop dead mid-lane.
       v.vx *= 0.2;
       v.vy *= 0.2;
     }

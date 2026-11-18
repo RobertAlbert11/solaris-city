@@ -1,4 +1,4 @@
-// Solaris City — main.js (rewritten polish pass)
+// Solaris City — main.js (final authoring pass)
 // Game boot: wires every subsystem together, runs the fixed-timestep-capped
 // main loop and layers the render passes (world -> entities -> sky -> HUD).
 

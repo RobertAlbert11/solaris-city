@@ -1,4 +1,4 @@
-// Solaris City — activities.js (rewritten polish pass)
+// Solaris City — activities.js (final authoring pass)
 // Side activities: stash hunting, spontaneous street races.
 // Races start by chance when the player blasts down a road at speed.
 
@@ -26,6 +26,7 @@ const RACE_RESPECT = 8;
 const RACE_MARKER_COLOR = '#4fc96f';
 
 // 8 hidden stashes scattered across the grid via a deterministic spread.
+// The (i * prime + offset) % range pattern avoids clustering without a RNG seed.
 function makeStashes() {
   return Array.from({ length: STASH_COUNT }, (_, i) => ({
     x: (8 + ((i * 17 + 23) % (GRID_W - 16))) * TILE,
@@ -88,6 +89,7 @@ export class Activities {
     s.taken = true;
     this.nearby = null;
     const found = this.stashes.filter(st => st.taken).length;
+    // Later stashes pay progressively more, capped so total payouts stay bounded.
     const bonus = Math.min(STASH_BONUS_CAP, found * STASH_BONUS_STEP);
     const payout = STASH_BASE_CASH + bonus;
     this.game.cash += payout;
@@ -119,6 +121,7 @@ export class Activities {
       this.game.hud.toast(`Race won! +$${RACE_CASH} Respect +${RACE_RESPECT}`);
     }
     this.raceActive = false;
+    // Sweep only this activity's marker so mission pins are left untouched.
     this.game.world.markers = this.game.world.markers.filter(m => m.color !== RACE_MARKER_COLOR);
   }
 }

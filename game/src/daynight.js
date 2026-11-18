@@ -1,4 +1,4 @@
-// Solaris City — daynight.js (rewritten polish pass)
+// Solaris City — daynight.js (final authoring pass)
 // 24-hour city clock driving the tint overlay, night sky and rush-hour traffic.
 
 import { NightSky } from './nightsky.js';

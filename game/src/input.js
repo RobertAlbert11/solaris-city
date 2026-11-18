@@ -1,4 +1,4 @@
-// Solaris City — input.js (rewritten polish pass)
+// Solaris City — input.js (final authoring pass)
 // Keyboard + mouse state with one-shot action consumption.
 // WASD/arrows move, SHIFT sprints, SPACE handbrakes, E enters/exits cars,
 // F or left-click fires, TAB toggles the big map, P pauses.

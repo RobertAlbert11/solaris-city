@@ -1,4 +1,4 @@
-// Solaris City — audio.js (rewritten polish pass)
+// Solaris City — audio.js (final authoring pass)
 // Fully synthesized WebAudio: engine drone, gunshots, sirens, pickups, cash.
 // No external audio files — everything is oscillators and noise buffers.
 
@@ -81,6 +81,7 @@ export class Audio {
       const n = Math.floor(this.ctx.sampleRate * dur);
       const buf = this.ctx.createBuffer(1, n, this.ctx.sampleRate);
       const d = buf.getChannelData(0);
+      // Linear ramp-down on the noise envelope so it clicks off cleanly.
       for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
       const src = this.ctx.createBufferSource();
       src.buffer = buf;

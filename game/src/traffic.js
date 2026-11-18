@@ -1,5 +1,5 @@
-// Authored by Solaris City agent (gta6-01)
-// traffic.js — NPC cars driving the road grid and pedestrians walking the sidewalks.
+// Solaris City — traffic.js (final authoring pass)
+// NPC cars driving the road grid and pedestrians walking the sidewalks.
 import { TILE, WORLD_W, WORLD_H } from './world.js';
 
 const COLORS = ['#c94f4f', '#4f7fc9', '#c9b74f', '#5fc97a', '#c98f4f', '#9a5fc9', '#d9d9d9', '#3a3f4a'];
@@ -15,7 +15,7 @@ function driveCar(dt, ax, ay, handbrake) {
   const grip = handbrake ? 1.8 : 6.5;
 
   const forwardX = Math.cos(this.dir), forwardY = Math.sin(this.dir);
-  // project input axis onto car-forward (throttle) and car-right (steering)
+  // Project input axis onto car-forward (throttle) and car-right (steering).
   const throttleProj = ax * forwardX + ay * forwardY;
   const steerProj = ax * -forwardY + ay * forwardX;
 
@@ -26,22 +26,22 @@ function driveCar(dt, ax, ay, handbrake) {
     sp += throttleProj * accel * dt;
     sp = Math.max(-120, Math.min(maxSpeed, sp));
   } else {
-    // engine braking
+    // Engine braking.
     sp *= 1 - 1.2 * dt;
   }
 
-  // steering: only when moving; reversed when driving backwards
+  // Steering: only when moving; reversed when driving backwards.
   if (Math.abs(sp) > 5) {
     this.dir += steerProj * turnRate * dt * (sp >= 0 ? 1 : -1);
   }
 
-  // velocity blends toward heading; low grip (handbrake) makes it lag => drift
+  // Velocity blends toward heading; low grip (handbrake) makes it lag => drift.
   const newFx = Math.cos(this.dir), newFy = Math.sin(this.dir);
   const targetVx = newFx * sp, targetVy = newFy * sp;
   const k = Math.min(1, grip * dt);
   this.vx += (targetVx - this.vx) * k;
   this.vy += (targetVy - this.vy) * k;
-  // extra push along heading when throttling (response at low speed)
+  // Extra push along heading when throttling (response at low speed).
   if (throttleProj !== 0) {
     const driveF = throttleProj >= 0 ? 1 : -1;
     this.vx += newFx * throttleProj * accel * dt * 0.35 * driveF;
@@ -49,7 +49,7 @@ function driveCar(dt, ax, ay, handbrake) {
   }
 
   if (handbrake) {
-    // handbrake scrubs speed
+    // Handbrake scrubs speed.
     this.vx *= 1 - 0.9 * dt;
     this.vy *= 1 - 0.9 * dt;
   }
@@ -105,14 +105,14 @@ export class Traffic {
 
   update(dt) {
     const g = this.game;
-    // cars: follow lane, respawn if far from player (keeps density around the action)
+    // Cars: follow lane, respawn if far from player (keeps density around the action).
     for (const v of this.vehicles) {
       if (v.driver === 'player') continue;
       v.x += v.vx * dt; v.y += v.vy * dt;
       if (v.x < -80 || v.x > WORLD_W + 80 || v.y < -80 || v.y > WORLD_H + 80) {
         Object.assign(v, this.recycle(v));
       }
-      // run over peds
+      // Run over peds.
       if (v.bonk > 0) v.bonk -= dt;
       for (const p of this.peds) {
         if (p.dead) continue;
@@ -122,14 +122,14 @@ export class Traffic {
         }
       }
     }
-    // despawn/respawn around player
+    // Despawn/respawn around player.
     const px = g.player.x, py = g.player.y;
     for (const v of this.vehicles) {
       if (v.driver === 'player') continue;
       const d = Math.hypot(v.x - px, v.y - py);
       if (d > 2600) Object.assign(v, this.recycle(v));
     }
-    // peds: wander, avoid roads-ish, flee when wanted
+    // Peds: wander, avoid roads-ish, flee when wanted.
     const flee = g.police.level >= 2;
     for (const p of this.peds) {
       if (p.dead) { p.down -= dt; if (p.down <= 0) Object.assign(p, this.respawnPed(p, px, py)); continue; }
@@ -149,17 +149,17 @@ export class Traffic {
       p.x = Math.max(10, Math.min(WORLD_W - 10, nx));
       p.y = Math.max(10, Math.min(WORLD_H - 10, ny));
       p.dir = Math.atan2(p.vy, p.vx);
-      // ped killed by player driving
+      // Ped killed by player driving.
       if (!p.dead && g.player.currentVehicle && Math.hypot(p.x - px, p.y - py) < 16) {
         const v = g.player.currentVehicle;
         if (Math.hypot(v.vx, v.vy) > 60) { p.dead = true; p.down = 6; g.police.reportCrime('vehicular-manslaughter', p.x, p.y); }
       }
-      // run over by npc handled above via vehicles loop; also player on foot bumps peds harmlessly
+      // Run over by NPC handled above via vehicles loop; player on foot bumps peds harmlessly.
     }
   }
 
   recycle(v) {
-    // respawn a free car near the player on a road
+    // Respawn a free car near the player on a road.
     const g = this.game;
     const horiz = Math.random() < 0.5;
     const lanes = [];
@@ -183,7 +183,7 @@ export class Traffic {
   }
 
   draw(ctx, cam) {
-    // peds first (under cars)
+    // Peds first (under cars).
     for (const p of this.peds) {
       if (Math.abs(p.x - cam.x) > cam.canvasW() + 60 || Math.abs(p.y - cam.y) > cam.canvasH() + 60) continue;
       if (p.dead) {
@@ -198,7 +198,7 @@ export class Traffic {
       ctx.fillStyle = '#2c2c38';
       ctx.fillRect(p.x - 5, p.y + 2, 10, 5);
     }
-    // cars
+    // Cars.
     for (const v of this.vehicles) {
       if (Math.abs(v.x - cam.x) > cam.canvasW() + 80 || Math.abs(v.y - cam.y) > cam.canvasH() + 80) continue;
       drawCar(ctx, v);
@@ -217,7 +217,7 @@ export function drawCar(ctx, v) {
   ctx.fillStyle = 'rgba(20,25,35,0.85)';
   ctx.fillRect(v.w / 2 - 12, -v.h / 2 + 3, 8, v.h - 6); // windshield
   ctx.fillRect(-v.w / 2 + 3, -v.h / 2 + 3, 5, v.h - 6);  // rear glass
-  // headlights
+  // Headlights.
   if (v.vx || v.vy || v.driver === 'player') {
     ctx.fillStyle = 'rgba(255,240,180,0.9)';
     ctx.fillRect(v.w / 2 - 2, -v.h / 2 + 1, 2, 4);

@@ -1,4 +1,4 @@
-// Solaris City — camera.js (rewritten polish pass)
+// Solaris City — camera.js (final authoring pass)
 // Smooth third-person follow camera with look-ahead and speed-sensitive zoom.
 // Shake decays over time and is applied after world-clamping so it stays visible.
 

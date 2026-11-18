@@ -1,5 +1,5 @@
-// Authored by Solaris City agent (gta6-01)
-// police.js — wanted level, crimes, police cars that chase the player, busted logic.
+// Solaris City — police.js (final authoring pass)
+// Wanted level, crimes, police cars that chase the player, busted logic.
 import { TILE } from './world.js';
 
 const CRIME_WEIGHTS = {
@@ -9,6 +9,9 @@ const CRIME_WEIGHTS = {
   'gunfire': 0.8,
   'cop-ram': 2.5,
 };
+
+// Module-level world cap (TILE * 120 == WORLD_W) declared after the class body.
+const WORLD_LIMIT = TILE * 120;
 
 export class Police {
   constructor(game) {
@@ -38,7 +41,7 @@ export class Police {
   update(dt) {
     const g = this.game, p = g.player;
     const px = p.x, py = p.y;
-    // decay heat slowly when not committing crimes
+    // Decay heat slowly when not committing crimes.
     if (g.time - (this.lastCrime?.t ?? -99) > 8) {
       this.heat = Math.max(0, this.heat - dt * 0.12);
       const dec = Math.min(5, Math.floor(this.heat));
@@ -46,7 +49,7 @@ export class Police {
     }
     if (this.level === 0) { this.despawnAll(); return; }
 
-    // spawn police proportional to wanted level, near the player on a road
+    // Spawn police proportional to wanted level, near the player on a road.
     this.spawnTimer -= dt;
     const want = Math.min(6, this.level + 1);
     if (this.cars.length < want && this.spawnTimer <= 0) {
@@ -54,7 +57,7 @@ export class Police {
       this.spawnCop();
     }
 
-    // roadblocks ahead of the player at wanted 3+
+    // Roadblocks ahead of the player at wanted 3+.
     if (this.level >= 3) {
       this.rbTimer -= dt;
       if (this.rbTimer <= 0 && this.roadblocks.length < 3) {
@@ -66,7 +69,7 @@ export class Police {
     }
     this.roadblocks = this.roadblocks.filter(rb => {
       const far = Math.hypot(rb.x - px, rb.y - py) > 1500;
-      // hitting a barrier at speed stops you hard and busts it
+      // Hitting a barrier at speed stops you hard and busts it.
       if (Math.abs(px - rb.x) < 30 && Math.abs(py - rb.y) < (rb.horiz ? 52 : 26)) {
         if (p.currentVehicle && Math.hypot(p.currentVehicle.vx, p.currentVehicle.vy) > 40) {
           p.currentVehicle.vx *= 0.15; p.currentVehicle.vy *= 0.15;
@@ -78,7 +81,7 @@ export class Police {
       return !far;
     });
 
-    // chase AI: drive straight at player, simple avoid-free pursuit
+    // Chase AI: drive straight at player, simple avoid-free pursuit.
     for (const c of this.cars) {
       if (c.driver === 'player') continue;
       const dx = px - c.x, dy = py - c.y, d = Math.hypot(dx, dy) || 1;
@@ -86,22 +89,17 @@ export class Police {
       c.vx = (dx / d) * spd; c.vy = (dy / d) * spd;
       c.dir = Math.atan2(dy, dx);
       c.x += c.vx * dt; c.y += c.vy * dt;
-      // ram detection: cop hits player vehicle
+      // Ram detection: cop hits player vehicle.
       if (Math.hypot(px - c.x, py - c.y) < 26) {
         if (p.currentVehicle) {
           p.currentVehicle.vx *= 0.5; p.currentVehicle.vy *= 0.5;
           g.effects.sparkBurst(c.x, c.y);
           g.camera.shake = 8;
-          // cops ramming you is not your crime; but if you ram them hard...
-          const pv = p.currentVehicle;
-          if (Math.hypot(pv.vx, pv.vy) > 120 && Math.sign(pv.vx) === Math.sign(-c.vx)) {
-            // player drove into cop at speed
-          }
         } else {
           p.damage(12 * dt * 6);
         }
       }
-      // player ramming a cop = crime
+      // Player ramming a cop = crime.
       if (p.currentVehicle) {
         const pv = p.currentVehicle;
         if (Math.hypot(c.x - pv.x, c.y - pv.y) < 24 && Math.hypot(pv.vx, pv.vy) > 130 && (c.ramCd ?? 0) <= 0) {
@@ -112,7 +110,7 @@ export class Police {
       if (c.ramCd > 0) c.ramCd -= dt;
     }
 
-    // busted: cop close while player on foot or nearly stopped
+    // Busted: cop close while player on foot or nearly stopped.
     if (!this.busted && this.level > 0) {
       const near = this.cars.some(c => Math.hypot(c.x - px, c.y - py) < 34);
       const slow = p.currentVehicle ? Math.hypot(p.currentVehicle.vx, p.currentVehicle.vy) < 30 : true;
@@ -123,14 +121,14 @@ export class Police {
     }
   }
 
-  // barrier across the nearest road, ~500u ahead of the player along their travel axis
+  // Barrier across the nearest road ~500u ahead of the player.
   spawnRoadblock(px, py) {
     const horiz = Math.random() < 0.5;
     const dist = 400 + Math.random() * 250;
     const lanes = [];
     for (let l = TILE * 4; l < WORLD_LIMIT; l += TILE * 8) lanes.push(l);
     const lane = lanes.reduce((a, b) => Math.abs(b - py) < Math.abs(a - py) ? b : a);
-    const along = Math.max(TILE * 4, Math.min(WORLD_LIMIT - TILE * 4, (horiz ? px : px) + dist));
+    const along = Math.max(TILE * 4, Math.min(WORLD_LIMIT - TILE * 4, px + dist));
     const alongY = Math.max(TILE * 4, Math.min(WORLD_LIMIT - TILE * 4, py + dist));
     this.roadblocks.push({
       horiz, x: horiz ? along : lane, y: horiz ? lane : alongY,
@@ -154,7 +152,7 @@ export class Police {
   }
 
   despawnAll() {
-    // keep cop cars that the player stole (kind police + driver player)
+    // Keep cop cars that the player stole (kind police + driver player).
     this.cars = this.cars.filter(c => c.driver === 'player');
   }
 
@@ -172,15 +170,13 @@ export class Police {
   }
 }
 
-const WORLD_LIMIT = TILE * 120;
-
 function drawRoadblock(ctx, rb) {
   ctx.save();
-  // flashing beacon glow
+  // Flashing beacon glow.
   const on = Math.floor(performance.now() / 250) % 2 === 0;
   ctx.fillStyle = on ? 'rgba(255,60,60,0.9)' : 'rgba(60,110,255,0.9)';
   ctx.fillRect(rb.x - rb.w / 2 - 6, rb.y - rb.h / 2 - 6, rb.w + 12, rb.h + 12);
-  // striped barriers
+  // Striped barriers.
   ctx.fillStyle = '#e86a1a';
   ctx.fillRect(rb.x - rb.w / 2, rb.y - rb.h / 2, rb.w, rb.h);
   ctx.fillStyle = '#f5f0e6';

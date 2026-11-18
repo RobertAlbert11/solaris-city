@@ -1,4 +1,4 @@
-// Solaris City — effects.js (rewritten polish pass)
+// Solaris City — effects.js (final authoring pass)
 // Particle system: sparks, blood puffs, muzzle flashes, smoke, lingering decals,
 // plus a full-screen flash for damage/bust moments.
 

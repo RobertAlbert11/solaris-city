@@ -1,4 +1,4 @@
-// Solaris City — hud.js (rewritten polish pass)
+// Solaris City — hud.js (final authoring pass)
 // Wanted stars, cash/respect, health & armor bars, vehicle readout, mission banner,
 // toast notifications, low-health vignette and paused/wasted/busted overlays.
 
@@ -143,6 +143,7 @@ export class Hud {
   drawLowHealthVignette(ctx, w, h) {
     const g = this.game;
     if (g.player.health >= 30) return;
+    // Pulse breathes so the warning reads as urgent without being harsh.
     const pulse = 0.25 + 0.15 * Math.sin(g.time * 6);
     const grd = ctx.createRadialGradient(w / 2, h / 2, h * 0.3, w / 2, h / 2, h * 0.75);
     grd.addColorStop(0, 'rgba(200,0,0,0)');
@@ -167,6 +168,7 @@ export class Hud {
       ctx.fillText(t.text, w / 2, ty);
       ty -= 26;
     }
+    // Prune expired toasts after drawing so they vanish on the next frame.
     this.toasts = this.toasts.filter(t => g.time <= t.until);
     ctx.restore();
   }

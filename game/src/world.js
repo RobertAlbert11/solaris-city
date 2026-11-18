@@ -1,5 +1,5 @@
-// Authored by Solaris City agent (gta6-01)
-// world.js — the city of Solaris City: road grid, blocks, buildings, beach, park, props and static collision.
+// Solaris City — world.js (final authoring pass)
+// The city of Solaris City: road grid, blocks, buildings, beach, park, props and static collision.
 export const TILE = 40;                 // world units per tile
 export const GRID_W = 120, GRID_H = 120; // 4800 x 4800 world
 export const WORLD_W = TILE * GRID_W, WORLD_H = TILE * GRID_H;
@@ -52,7 +52,7 @@ export class World {
   generateBlock(bx, by, d) {
     const x0 = bx * TILE, y0 = by * TILE;
     const base = d ? d.tint : '#b9b0a0';
-    // 4-8 buildings per block
+    // 4-8 buildings per block.
     const n = 4 + ((bx * 7 + by * 13) % 4);
     for (let i = 0; i < n; i++) {
       const px = x0 + 20 + (i % 2) * 90 + (i > 3 ? 150 : 0);
@@ -60,10 +60,10 @@ export class World {
       const w = 60 + ((bx + i * 31) % 3) * 25;
       const h = 60 + ((by + i * 17) % 3) * 25;
       if (px + w > x0 + 240 || py + h > y0 + 240) continue;
-      // vary height: downtown is skyscraper country, elsewhere low/mid-rise with occasional towers
+      // Vary height: downtown is skyscraper country, elsewhere low/mid-rise with occasional towers.
       let tall = d && d.name === 'Downtown Solaris' ? 3 + (i % 3) : 1 + (i % 2);
       if (Math.random() < 0.15) tall += 2;
-      // vary color: per-building hue jitter away from the district tint
+      // Vary color: per-building hue jitter away from the district tint.
       const c = parseInt(base.slice(1), 16);
       const jr = ((bx * 31 + by * 17 + i * 53) % 60) - 30;
       const jg = ((bx * 13 + by * 29 + i * 71) % 50) - 25;
@@ -81,7 +81,7 @@ export class World {
   }
 
   generateProps() {
-    // palms along the beach edge and scattered in blocks; streetlights on road corners
+    // Palms along the beach edge and scattered in blocks; streetlights on road corners.
     for (let gx = 0; gx <= GRID_W; gx += 8) {
       for (let gy = 0; gy <= GRID_H; gy += 8) {
         this.props.push({ type: 'light', x: gx * TILE, y: gy * TILE });
@@ -112,15 +112,15 @@ export class World {
     const vw = (innerWidth / cam.zoom), vh = (innerHeight / cam.zoom);
     const x0 = cam.x - vw / 2, y0 = cam.y - vh / 2;
     const x1 = x0 + vw, y1 = y0 + vh;
-    // ground
+    // Ground.
     ctx.fillStyle = '#3a3f4a';
     ctx.fillRect(Math.max(0, x0), Math.max(0, y0), Math.min(WORLD_W, x1) - Math.max(0, x0), Math.min(WORLD_H, y1) - Math.max(0, y0));
-    // beach strip
+    // Beach strip.
     ctx.fillStyle = '#d8c58c';
     ctx.fillRect(0, 0, 8 * TILE, WORLD_H);
     ctx.fillStyle = '#2e7fbf';
     ctx.fillRect(-260, 0, 260, WORLD_H); // ocean west of city
-    // roads
+    // Roads.
     ctx.strokeStyle = '#262a33'; ctx.lineWidth = TILE * 1.8;
     for (let gx = 0; gx <= GRID_W; gx += 8) {
       const px = gx * TILE;
@@ -132,7 +132,7 @@ export class World {
       if (py + 60 < y0 || py - 60 > y1) continue;
       ctx.beginPath(); ctx.moveTo(Math.max(0, x0), py); ctx.lineTo(Math.min(WORLD_W, x1), py); ctx.stroke();
     }
-    // lane dashes
+    // Lane dashes.
     ctx.strokeStyle = '#c9c26a'; ctx.lineWidth = 3; ctx.setLineDash([18, 26]);
     for (let gx = 0; gx <= GRID_W; gx += 8) {
       const px = gx * TILE;
@@ -145,7 +145,7 @@ export class World {
       ctx.beginPath(); ctx.moveTo(Math.max(0, x0), py); ctx.lineTo(Math.min(WORLD_W, x1), py); ctx.stroke();
     }
     ctx.setLineDash([]);
-    // buildings with sun-side shading
+    // Buildings with sun-side shading.
     for (const b of this.buildings) {
       if (b.x + b.w < x0 || b.x > x1 || b.y + b.h < y0 || b.y > y1) continue;
       ctx.fillStyle = 'rgba(0,0,0,0.35)';
@@ -162,7 +162,7 @@ export class World {
           }
         }
       }
-      // neon signs glow only at night
+      // Neon signs glow only at night.
       if (b.neon) {
         const night = this.game.daynight ? this.game.daynight.darkness() : 0;
         if (night > 0.3) {
@@ -180,7 +180,7 @@ export class World {
         }
       }
     }
-    // props
+    // Props.
     for (const p of this.props) {
       if (p.x < x0 - 30 || p.x > x1 + 30 || p.y < y0 - 30 || p.y > y1 + 30) continue;
       if (p.type === 'palm') {
@@ -201,7 +201,7 @@ export class World {
         ctx.fillStyle = 'rgba(255,235,170,0.8)'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 7); ctx.fill();
       }
     }
-    // district signposts handled by HUD; markers drawn by missions via effects layer
+    // District signposts handled by HUD; mission pins are bobbing marker flags.
     for (const m of this.markers) {
       ctx.fillStyle = m.color || '#ffd23c';
       ctx.beginPath();

@@ -1,4 +1,4 @@
-// Solaris City — main.ts (submission program, rewritten polish pass).
+// Solaris City — main.ts (submission program, final authoring pass).
 //
 // Packages the entry for the make.fun grader: copies the playable game (game/, plain
 // static files — no build step, no network) and the maker's screenshots into the output

@@ -1,4 +1,4 @@
-// Solaris City — combat.js (rewritten polish pass)
+// Solaris City — combat.js (final authoring pass)
 // Pistol combat: mouse aiming, F/click to fire, tracers, rival gang AI,
 // ammo with auto-reload, and crime reporting hooking into the police system.
 

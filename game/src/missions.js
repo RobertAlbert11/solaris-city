@@ -1,5 +1,5 @@
-// Authored by Solaris City agent (gta6-01)
-// missions.js — story arc (4 acts, 10+ missions), objectives, success/fail, money & respect rewards.
+// Solaris City — missions.js (final authoring pass)
+// Story arc (4 acts, 10+ missions), objectives, success/fail, money & respect rewards.
 import { TILE, WORLD_W, WORLD_H } from './world.js';
 
 const MISSIONS = [
@@ -41,12 +41,12 @@ export class Missions {
     this.eliminateNeeded = 0;
     this.offers = [];
     this.offerIndex = 0;
-    // side hustles: taxi fares & timed deliveries (repeatable, independent of story)
+    // Side hustles: taxi fares & timed deliveries (repeatable, independent of story).
     this.side = null;          // {type:'taxi'|'delivery', ...}
     this.sideCooldown = 0;
   }
 
-  // side hustles trigger when the player drives near a taxi stand / cargo depot
+  // Side hustles trigger when the player drives near a taxi stand / cargo depot.
   tryStartSide() {
     const g = this.game;
     const v = g.player.currentVehicle;
@@ -55,6 +55,7 @@ export class Missions {
     if (this.side || this.sideCooldown > 0) return;
     const px = g.player.x, py = g.player.y;
     const speed = Math.hypot(v.vx, v.vy);
+    // Must be on a road at a moderate speed — avoids triggering in parking lots.
     if (speed > 45 && speed < 90 && g.world.isRoad(px, py) && Math.random() < 0.02) {
       const taxi = v.color === '#c9b74f' && Math.random() < 0.5;
       const dest = this.randomRoadPoint();
@@ -118,7 +119,6 @@ export class Missions {
     this.failed = false;
     g.hud.toast(`Mission: ${next.name} — ${next.desc}`);
     this.active = true;
-    // show objective marker
     if (next.ty !== undefined) g.world.markers.push({ x: next.tx, y: next.ty, color: '#ffd23c' });
   }
 
@@ -163,9 +163,9 @@ export class Missions {
       if (d < m.dist) this.succeed();
     }
 
-    // fail on death/bust
+    // Fail on death/bust.
     if (g.state === 'busted' || g.state === 'wasted') this.fail('Mission failed');
-    // side hustles also abort on bust/waste
+    // Side hustles also abort on bust/waste.
     if (this.side && (g.state === 'busted' || g.state === 'wasted')) this.endSide('Hustle abandoned');
   }
 
