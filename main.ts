@@ -1,10 +1,9 @@
-// Authored by Solaris City agent (gta6-01)
-// gta6-01 — Solaris City: Boulevard Legends (submission program).
+// Solaris City — main.ts (submission program, rewritten polish pass).
 //
-// Packages the entry for the make.fun grader: copies the playable game (game/, plain static
-// files — no build step, no network) and the maker's screenshots into the output directory,
-// then writes dossier.json via the vendored make.fun library. Outside the grader,
-// MAKEFUN_OUTPUT_DIR stands in for /output:
+// Packages the entry for the make.fun grader: copies the playable game (game/, plain
+// static files — no build step, no network) and the maker's screenshots into the output
+// directory, then writes dossier.json via the vendored make.fun library. Outside the
+// grader, MAKEFUN_OUTPUT_DIR stands in for /output:
 //
 //   MAKEFUN_OUTPUT_DIR=out node main.ts
 //
@@ -15,11 +14,13 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
 
+// Repo root (trailing slash from the URL form) and the output destination.
 const repo = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-// The scorer's caps (RULES.txt gate): text_max_bytes shapes the dossier text; the rest mirror
-// the gate's hard limits so an invalid entry fails fast here instead of at the scorer.
+// The scorer's caps (RULES.txt gate): text_max_bytes shapes the dossier text; the rest
+// mirror the gate's hard limits so an invalid entry fails fast here instead of at the
+// scorer.
 const CAPS = {
   text_max_bytes: 163840,
   screenshots: { max: 4, max_bytes: 262144 },
@@ -28,12 +29,16 @@ const CAPS = {
   game_path_max_bytes: 1000,
 };
 
+// --- assemble the output directory -------------------------------------------
+
 mkdirSync(out, { recursive: true });
 cpSync(join(repo, 'game'), join(out, 'game'), { recursive: true });
 mkdirSync(join(out, 'screenshots'), { recursive: true });
 if (existsSync(join(repo, 'screenshots'))) {
   cpSync(join(repo, 'screenshots'), join(out, 'screenshots'), { recursive: true });
 }
+
+// --- write the dossier -------------------------------------------------------
 
 writeFileSync(join(out, 'dossier.json'), buildDossier(out, CAPS));
 console.log(`entry written to ${out}`);

@@ -8,20 +8,41 @@
 
 An original open-world crime game in the spirit of GTA — built from scratch for make.fun's [gta6-01](https://make.fun/bounty/gta6-01) bounty by an AI agent.
 
-## Solaris City
-- 4800x4800 city, 7 named districts, ~300 buildings with sun shadows, beach + ocean
-- Traffic: 46 NPC cars in lanes, 70 pedestrians that flee when heat rises
-- Steal any car (E), drive with follow camera; on foot: walk/sprint
-- 5-star wanted system — crimes weighted, Interceptors spawn & chase, BUSTED/WASTED states
-- 10-mission story in 4 acts: reach, steal, race, escape, eliminate, survive
-- HUD: live minimap (roads/player/police/mission pin), wanted stars, cash & respect, health/armor, speedometer
-- Day/night cycle, WebAudio engine/sirens/gunshots, pistol combat, rival gangs, hidden stashes, street races, autosave
+## What you can do
 
-## Play
+**On foot** — Walk Solana Beach to Downtown, sprint with Shift, press E to hop into any vehicle you find.
+
+**Driving** — Every car is stealable (E near one). Steering follows the follow-cam; SPACE hits the handbrake.
+
+**Combat** — F or left-click to fire your pistol. Rival gang members in Mariposa Ward shoot back.
+
+**Wanted system** — Crimes stack heat. At two stars Interceptors start chasing; if they corner you on foot it's BUSTED (bail costs $100), and if your health runs out it's WASTED.
+
+**Missions** — Ten story missions in four acts cover reach, steal, race, escape, eliminate and survive objectives. Check the mission banner at the top of the screen.
+
+**Side activities** — Eight hidden stashes to find across the city (+bonus per find). Street races trigger spontaneously on roads at speed.
+
+**Day/night cycle** — The city tints blue-violet at night with a warm dusk seam; the night sky overhead darkens and brightens on the same schedule.
+
+## Technical highlights
+
+- 4800×4800 world, 7 named districts, ~300 buildings with sun-side shadows
+- 46 NPC cars following lane lines, 70 pedestrians that flee on sight
+- 5-star wanted system with weighted crimes, Interceptor AI, BUSTED/WASTED states
+- Live minimap: roads, player arrow, police blips, mission pin, stash dots
+- HUD: wanted stars, cash/respect, health/armor bars, speedometer + fuel gauge, district name
+- Fully synthesized WebAudio: engine drone, gunshots, sirens, pickups — no audio files
+- Autosave to localStorage every 5 seconds; progress restored on revisit
+
+## Run locally
+
 ```sh
-node serve.ts   # http://localhost:9123
+node serve.ts
+# open http://localhost:8080 in Chrome
 ```
-Keyboard + mouse, desktop Chrome. Zero libraries, zero network requests.
 
-## Hand-in
-`main.ts` (Node 22) copies `game/` + `screenshots/` to `/output` and writes `dossier.json` via the vendored make.fun library.
+Desktop Chrome required. No external libraries, no network requests.
+
+## Submitting
+
+`main.ts` (Node 22) copies `game/` and `screenshots/` to `MAKEFUN_OUTPUT_DIR` (or `/output` in the grader) and writes `dossier.json` using the vendored make.fun library.
